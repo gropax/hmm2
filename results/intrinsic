@@ -1,0 +1,56 @@
+Namespace(cmd='int', test=<_io.TextIOWrapper name='./data/german_tiger_test.conll' mode='r' encoding='UTF-8'>, train=<_io.TextIOWrapper name='./data/german_tiger_train.conll' mode='r' encoding='UTF-8'>)
+
+    ============================================================
+                    INTRINSIC EVALUATION
+    ============================================================
+
+    train corpus:	./data/german_tiger_train.conll	(39216 sentences)
+    test corpus :	./data/german_tiger_test.conll	(357 sentences)
+
+    accuracy    :	95.96 %
+
+    
+    pred NN for NE :  0.03 %
+    pred ADJD for VVFIN :  0.03 %
+    pred PPOSAT for PDAT :  0.06 %
+    pred NE for VVFIN :  0.02 %
+    pred VVPP for PPER :  0.01 %
+    pred ADJD for ADV :  0.02 %
+    pred VVIZU for VVPP :  0.02 %
+    pred VVFIN for VVINF :  0.11 %
+    pred VVINF for ADJD :  0.01 %
+    pred VAFIN for VAINF :  0.12 %
+    pred VVPP for ADJD :  0.01 %
+    pred PWS for PRELS :  0.03 %
+    pred VVINF for VVFIN :  0.03 %
+    pred NE for XY :  0.69 %
+    pred PDS for PRELS :  0.03 %
+    pred ADJA for ART :  0.02 %
+    pred ART for PRELS :  0.11 %
+    pred VVFIN for PPER :  0.01 %
+    pred ADV for ADJD :  0.01 %
+    pred VVPP for VVFIN :  0.02 %
+    pred NN for XY :  0.06 %
+    pred NN for NNE :  1.00 %
+    pred NN for TRUNC :  0.67 %
+    pred ART for PIS :  0.03 %
+    pred NN for PPER :  0.02 %
+    pred VVFIN for ADV :  0.01 %
+    pred VVFIN for VVPP :  0.04 %
+    pred ADJD for VVPP :  0.02 %
+    pred ART for PDS :  0.10 %
+    pred ADJD for VVINF :  0.01 %
+    pred ADJD for PTKVZ :  0.06 %
+    pred NN for ADJD :  0.01 %
+    pred PRELS for PWAV :  0.08 %
+    pred APPR for KOUS :  0.02 %
+    pred ADV for APPR :  0.01 %
+    pred KON for ADV :  0.02 %
+    pred PIS for PIAT :  0.03 %
+    pred ADV for PROAV :  0.03 %
+    pred KOUS for KOKOM :  0.11 %
+    pred VVFIN for ADJD :  0.01 %
+    pred NN for CARD :  0.01 %
+    pred VVINF for VVPP :  0.03 %
+    pred VVPP for VVINF :  0.01 %
+    pred ADV for PTKVZ :  0.06 %

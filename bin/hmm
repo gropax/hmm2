@@ -49,7 +49,8 @@ def intrinsic_evaluation():
     print(str)
 
     for (tag, pred), prob in confusion.items():
-        print("pred %s for %s :  %0.2f %%" % (pred, tag, prob))
+        if tag != pred and prob > 0.01:
+            print("    pred %s for %s :  %0.2f %%" % (pred, tag, prob))
 
 
 def tagset_refinement():
@@ -58,7 +59,7 @@ def tagset_refinement():
 
     tagger = Tagger()
     tagger.train(train)
-    original_accur = tagger.test(test)
+    original_accur,_ = tagger.test(test)
 
     tag_map = read_map(args.tag_map)
     train2 = list(map_corpus(train, tag_map))
@@ -66,7 +67,7 @@ def tagset_refinement():
 
     tagger2 = Tagger()
     tagger2.train(train2)
-    new_accur = tagger2.test(test2)
+    new_accur, confusion = tagger2.test(test2)
 
     str = """
     ============================================================
@@ -87,6 +88,9 @@ def tagset_refinement():
         new_accur*100)
     print(str)
 
+    for (tag, pred), prob in confusion.items():
+        if tag != pred and prob > 0.01:
+            print("    pred %s for %s :  %0.2f %%" % (pred, tag, prob))
 
 
 def extrinsic_evaluation():

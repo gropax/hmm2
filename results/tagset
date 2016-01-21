@@ -1,0 +1,35 @@
+Namespace(cmd='tagset', tag_map=<_io.TextIOWrapper name='./data/de_tiger.map' mode='r' encoding='UTF-8'>, test=<_io.TextIOWrapper name='./data/german_tiger_test.conll' mode='r' encoding='UTF-8'>, train=<_io.TextIOWrapper name='./data/german_tiger_train.conll' mode='r' encoding='UTF-8'>)
+
+    ============================================================
+                        TAGSET REFINEMENT
+    ============================================================
+
+    train corpus:	./data/german_tiger_train.conll	(39216 sentences)
+    test corpus :	./data/german_tiger_test.conll	(357 sentences)
+    tag map     :	./data/de_tiger.map
+
+    accuracy (original tags) :	95.96 %
+    accuracy (mapped tags)   :	96.14 %
+
+    
+    pred PRON for DET :  0.02 %
+    pred ADV for ADP :  0.01 %
+    pred NOUN for DET :  0.02 %
+    pred NOUN for VERB :  0.03 %
+    pred CONJ for ADP :  0.01 %
+    pred DET for PRON :  0.02 %
+    pred ADJ for NOUN :  0.01 %
+    pred ADJ for ADV :  0.03 %
+    pred ADJ for PRT :  0.05 %
+    pred ADJ for DET :  0.02 %
+    pred CONJ for ADV :  0.01 %
+    pred ADP for PRT :  0.03 %
+    pred PRON for CONJ :  0.01 %
+    pred NOUN for ADJ :  0.02 %
+    pred ADJ for VERB :  0.02 %
+    pred PRON for NUM :  0.01 %
+    pred ADJ for ADP :  0.01 %
+    pred PRON for ADV :  0.01 %
+    pred ADP for CONJ :  0.01 %
+    pred NOUN for X :  0.58 %
+    pred DET for PRT :  0.02 %
