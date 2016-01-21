@@ -1,6 +1,6 @@
 import os
 from hmm.tagger import Tagger
-from hmm.dependency_parser import ArcEagerParser, dp_features
+from hmm.dependency_parser import ArcEagerParser, dp_features, train_dependency_parser, read_conll, ArcHybridParser
 
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', 'data')
@@ -17,7 +17,7 @@ def de_universal_corpus():
 
     return train, dev, test
 
-def read_conll(infile, max_sent=None):
+def read_conll_tagging_data(infile, max_sent=None):
     """
     Lit un corpus au format conll et renvoie une liste de couples.
     Chaque couple contient deux listes de même longueur :
@@ -49,3 +49,17 @@ def read_conll(infile, max_sent=None):
             tags.append(coarse_pos)
         sentences.append((words,tags))
     return sentences
+
+
+def read_map(file):
+    map = {}
+    for line in file:
+        stripped = line.strip()
+        if stripped:
+            src, dst = stripped.split('\t')
+            map[src] = dst
+    return map
+
+def map_corpus(corpus, map):
+    for words, tags in corpus:
+        yield (words, [map[t] for t in tags])

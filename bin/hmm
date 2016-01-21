@@ -1,12 +1,129 @@
 import sys
 from argparse import ArgumentParser, FileType
+from hmm import Tagger, de_universal_corpus, read_conll, ArcEagerParser, dp_features, train_dependency_parser, read_conll_tagging_data, ArcHybridParser, read_map, map_corpus
 
 parser = ArgumentParser(description="POS Tagging using HMM")
-parser.add_argument('-t', '--train', nargs='?', type=FileType('r'))
-parser.add_argument('-T', '--test', nargs='?', type=FileType('r'))
-parser.add_argument('-m', '--tag-map', nargs='?', type=FileType('r'))
+subparsers = parser.add_subparsers(help='subcommands', dest='cmd')
+
+parser_int = subparsers.add_parser('int')
+parser_int.add_argument('-t', '--train', nargs='?', type=FileType('r'), default='./data/de-universal-train.conll')
+parser_int.add_argument('-T', '--test', nargs='?', type=FileType('r'), default='./data/de-universal-test.conll')
+
+parser_tag = subparsers.add_parser('tagset')
+parser_tag.add_argument('-t', '--train', nargs='?', type=FileType('r'), default='./data/de-universal-train.conll')
+parser_tag.add_argument('-T', '--test', nargs='?', type=FileType('r'), default='./data/de-universal-test.conll')
+parser_tag.add_argument('-m', '--tag-map', nargs='?', type=FileType('r'), default='./data/de_tiger.map')
+
+parser_ext = subparsers.add_parser('ext')
+parser_ext.add_argument('-t', '--train', nargs='?', type=FileType('r'), default='./data/de-universal-train.conll')
+parser_ext.add_argument('-d', '--dev', nargs='?', type=FileType('r'), default='./data/de-universal-dev.conll')
+parser_ext.add_argument('-T', '--test', nargs='?', type=FileType('r'), default='./data/de-universal-test.conll')
+
 
 args = parser.parse_args()
+print(args)
+
+
+def intrinsic_evaluation():
+    train = read_conll_tagging_data(args.train)
+    test = read_conll_tagging_data(args.test)
+
+    tagger = Tagger()
+    tagger.train(train)
+
+    int_accur = tagger.test(test)
+
+    str = """
+    ============================================================
+                    INTRINSIC EVALUATION
+    ============================================================
+
+    train corpus:\t%s\t(%i sentences)
+    test corpus :\t%s\t(%i sentences)
+    accuracy    :\t%0.2f %%
+    """ % (args.train.name, len(train),
+        args.test.name, len(test),
+        int_accur*100)
+    print(str)
+    print(train[0])
+
+
+def tagset_refinement():
+    train = read_conll_tagging_data(args.train)
+    test = read_conll_tagging_data(args.test)
+
+    tagger = Tagger()
+    tagger.train(train)
+    original_accur = tagger.test(test)
+
+    tag_map = read_map(args.tag_map)
+    train2 = list(map_corpus(train, tag_map))
+    test2 = list(map_corpus(test, tag_map))
+
+    tagger2 = Tagger()
+    tagger2.train(train2)
+    new_accur = tagger2.test(test2)
+
+    str = """
+    ============================================================
+                        TAGSET REFINEMENT
+    ============================================================
+
+    train corpus:\t%s\t(%i sentences)
+    test corpus :\t%s\t(%i sentences)
+    tag map     :\t%s
+
+    accuracy (original tags) :\t%0.2f %%
+    accuracy (mapped tags)   :\t%0.2f %%
+
+    """ % (args.train.name, len(train),
+        args.test.name, len(test),
+        args.tag_map.name,
+        original_accur*100,
+        new_accur*100)
+    print(str)
+
+
+
+def extrinsic_evaluation():
+    train = read_conll(args.train)
+    dev = read_conll(args.dev)
+    test = read_conll(args.test)
+
+    n_epoch = 5
+    #dep_parser = ArcEagerParser(dp_features)
+    dep_parser = ArcHybridParser(dp_features)
+    #train_dependency_parser(dep_parser, train, dev, n_epoch)
+
+    raw_accur = 0.5
+    ext_accur = 0.5
+
+    str = """
+    ============================================================
+                    EXTRINSIC EVALUATION
+    ============================================================
+
+    train corpus:\t%s\t(%i sentences)
+    dev   corpus:\t%s\t(%i sentences)
+    test  corpus:\t%s\t(%i sentences)
+
+    accuracy without tagger :\t%0.2f %%
+    accuracy with tagger    :\t%0.2f %%
+
+    """ % (args.train.name, len(train),
+        args.dev.name, len(dev),
+        args.test.name, len(test),
+        raw_accur*100, ext_accur*100)
+
+    print(str)
+
+
+if args.cmd == 'int':
+    intrinsic_evaluation()
+elif args.cmd == 'tagset':
+    tagset_refinement()
+elif args.cmd == 'ext':
+    extrinsic_evaluation()
 
 
 # vim: set filetype=python:

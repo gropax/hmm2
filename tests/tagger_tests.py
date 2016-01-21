@@ -9,11 +9,6 @@ class TestTagger:
         self.train = train[:100]
         self.test = test[:100]
 
-    def test_train(self):
+    def test_tagger(self):
         self.tagger.train(self.train)
-
-    def test_test(self):
-        pass
-
-    def test_predict(self):
-        pass
+        self.tagger.test(self.test)
