@@ -1,0 +1,8 @@
+setup.py
+bin/hmm
+hmm/__init__.py
+hmm.egg-info/PKG-INFO
+hmm.egg-info/SOURCES.txt
+hmm.egg-info/dependency_links.txt
+hmm.egg-info/not-zip-safe
+hmm.egg-info/top_level.txt

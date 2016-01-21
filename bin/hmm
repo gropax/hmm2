@@ -1,0 +1,18 @@
+import sys
+from argparse import ArgumentParser, FileType
+
+parser = ArgumentParser(description="Generate French words")
+parser.add_argument('infile', nargs='?', type=FileType('r'))
+parser.add_argument('-o', '--order', nargs='?', type=int, default=1)
+parser.add_argument('-l', '--length', nargs='?', type=int)
+parser.add_argument('-v', '--verb', nargs='?', type=str, const='inf')
+parser.add_argument('-n', '--noun', action='store_true')
+parser.add_argument('-g', '--graphic', action='store_true')
+parser.add_argument('-p', '--phonologic', action='store_true')
+parser.add_argument('-N', '--new', action='store_true')
+
+
+args = parser.parse_args()
+
+
+# vim: set filetype=python:
