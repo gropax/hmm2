@@ -80,15 +80,26 @@ class Tagger():
 
         Renvoie l'exactitude du modèle.
         """
+        pred_count = defaultdict(float)
+        tag_count = defaultdict(float)
+
         acc = 0.0
         tot = 0.0
         for x,y in sentences_lst :
             y_hat = self.predict(x)
             tot += len(y_hat)
             for i,tag in enumerate(y_hat) :
+                pred_count[(tag, y[i])] += 1
+                tag_count[tag] += 1
+
                 if tag == y[i] :
                     acc += 1
-        return acc / tot
+
+        confusion = {}
+        for (tag, pred), count in pred_count.items():
+            confusion[(tag, pred)] = count / tag_count[tag]
+
+        return (acc / tot, confusion)
 
     def viterbi(self, initial_transitions, final_transitions, transitions, emissions) :
         """

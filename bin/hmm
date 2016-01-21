@@ -15,9 +15,9 @@ parser_tag.add_argument('-T', '--test', nargs='?', type=FileType('r'), default='
 parser_tag.add_argument('-m', '--tag-map', nargs='?', type=FileType('r'), default='./data/de_tiger.map')
 
 parser_ext = subparsers.add_parser('ext')
-parser_ext.add_argument('-t', '--train', nargs='?', type=FileType('r'), default='./data/de-universal-train.conll')
-parser_ext.add_argument('-d', '--dev', nargs='?', type=FileType('r'), default='./data/de-universal-dev.conll')
-parser_ext.add_argument('-T', '--test', nargs='?', type=FileType('r'), default='./data/de-universal-test.conll')
+parser_ext.add_argument('-t', '--train', nargs='?', type=FileType('r', encoding='utf8'), default='./data/de-universal-train.conll')
+parser_ext.add_argument('-d', '--dev', nargs='?', type=FileType('r', encoding='utf8'), default='./data/de-universal-dev.conll')
+parser_ext.add_argument('-T', '--test', nargs='?', type=FileType('r', encoding='utf8'), default='./data/de-universal-test.conll')
 
 
 args = parser.parse_args()
@@ -31,7 +31,7 @@ def intrinsic_evaluation():
     tagger = Tagger()
     tagger.train(train)
 
-    int_accur = tagger.test(test)
+    int_accur, confusion = tagger.test(test)
 
     str = """
     ============================================================
@@ -40,12 +40,16 @@ def intrinsic_evaluation():
 
     train corpus:\t%s\t(%i sentences)
     test corpus :\t%s\t(%i sentences)
+
     accuracy    :\t%0.2f %%
+
     """ % (args.train.name, len(train),
         args.test.name, len(test),
         int_accur*100)
     print(str)
-    print(train[0])
+
+    for (tag, pred), prob in confusion.items():
+        print("pred %s for %s :  %0.2f %%" % (pred, tag, prob))
 
 
 def tagset_refinement():
@@ -91,9 +95,8 @@ def extrinsic_evaluation():
     test = read_conll(args.test)
 
     n_epoch = 5
-    #dep_parser = ArcEagerParser(dp_features)
-    dep_parser = ArcHybridParser(dp_features)
-    #train_dependency_parser(dep_parser, train, dev, n_epoch)
+    dep_parser = ArcEagerParser(dp_features)
+    train_dependency_parser(dep_parser, train, dev, n_epoch)
 
     raw_accur = 0.5
     ext_accur = 0.5
