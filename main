@@ -1,6 +1,7 @@
 import sys
 from argparse import ArgumentParser, FileType
-from hmm import Tagger, de_universal_corpus, read_conll, ArcEagerParser, dp_features, train_dependency_parser, read_conll_tagging_data, ArcHybridParser, read_map, map_corpus
+from hmm import Tagger, de_universal_corpus, read_conll_tagging_data, read_map, map_corpus
+from dependency_parser import read_conll, ArcEagerParser, dp_features, train_dependency_parser, ArcHybridParser
 
 parser = ArgumentParser(description="POS Tagging using HMM")
 subparsers = parser.add_subparsers(help='subcommands', dest='cmd')
@@ -21,7 +22,6 @@ parser_ext.add_argument('-T', '--test', nargs='?', type=FileType('r', encoding='
 
 
 args = parser.parse_args()
-print(args)
 
 
 def intrinsic_evaluation():

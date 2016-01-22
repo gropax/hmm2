@@ -41,7 +41,7 @@ from collections import defaultdict
 
 ## added
 from copy import deepcopy as copy
-from hmm.averaged_perceptron import *
+from averaged_perceptron import *
 from six import with_metaclass
 
 
@@ -95,7 +95,7 @@ class Parse:
                           "rights={}".format(self.rights)])
 
 
-class AbstractParser(with_metaclass(abc.ABCMeta, object)) :
+class AbstractParser(with_metaclass(abc.ABCMeta, object)) : 
 
     """An abstract dependency parser that implements a
     transition-based strategy (either arc-hybrid or arc-eager).
@@ -425,7 +425,7 @@ def dp_features(words, features, n0, stack, parse, history, delexicalized=False)
             return # continue
 
         features[name.format(*args)] = 1
-
+    
     tags = features["fpos"]
     features = defaultdict(int)
 
@@ -613,7 +613,7 @@ def read_conll(loc, max_sent=None, use_coarse_pos=True):
     for ex in read_tabular_file(loc, header, max_sent):
         words = DefaultList([e["FORM"] for e in ex], default=None)
         heads = [e["HEAD"] for e in ex]
-
+        
         cpos = DefaultList([e["CPOS"] for e in ex], default=None)
         fpos = DefaultList([e["FPOS"] for e in ex], default=None)
         lemma = DefaultList([e["LEMMA"] for e in ex], default=None)
@@ -621,7 +621,7 @@ def read_conll(loc, max_sent=None, use_coarse_pos=True):
         features = {"cpos": pad_tokens(cpos),
                     "fpos": pad_tokens(fpos),
                     "lemma": pad_tokens(lemma)}
-
+                    
         labels = [None] + [e["LABEL"] for e in ex]
         heads = [None] + [int(h) if h != 0 else len(ex) + 1 for h in heads]
 
@@ -724,7 +724,7 @@ def train_dependency_parser(parser, train_set, dev_set, n_epoch):
             gold_label) in which `words` and `gold_label` are lists of
             strings, features is a dictionary of lists and gold_parse
             a list of int.
-
+    
     - dev_set : development data
 
     - n_epoch, an integer
@@ -744,12 +744,12 @@ def train_dependency_parser(parser, train_set, dev_set, n_epoch):
         weights = copy(parser.model.weights)
         parser.model.average_weights()
         acc_test = test_dependency_parser(parser, dev_set)
-
+        
         parser.model.weights = weights
-
+        
         print("Epoch {} / {} : UAS train = {:.3%}, UAS dev = {:.3%}".format(itn+1, n_epoch, corr / total, acc_test))
 
-    print('Averaging weights')
+    print('Averaging weights ...\n')
     parser.model.average_weights()
 
 

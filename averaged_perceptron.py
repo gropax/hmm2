@@ -34,7 +34,7 @@ class AveragedPerceptron:
 
         if true_label == guessed_label:
             return
-
+        
         if guessed_features is None:
             for f in true_features:
                 self.__perceptron_update(f, true_label, +1)
@@ -81,8 +81,8 @@ class AveragedPerceptron:
         for label in self.weights:
             for f in self.weights[label]:
                 self.weights[label][f] -= t * self._cached[label][f]
-
-
+                
+        
     def decision_function(self, features, label):
         return sum(features[f] * self.weights[label][f] for f in features)
 
