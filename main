@@ -42,46 +42,48 @@ print(str)
 #============================================================
 
 # Rich tags
-#tagger_rich = Tagger()
-#tagger_rich.train(train_rich)
-#accur_rich = tagger_rich.test(test_rich)
-#print("Trained Tagger for rich tags.")
+tagger_rich = Tagger()
+tagger_rich.train(train_rich)
+accur_rich = tagger_rich.test(test_rich)
+print("Trained Tagger for rich tags.")
 
-## Universal tags
-#tagger_univ = Tagger()
-#tagger_univ.train(train_univ)
-#accur_univ = tagger_univ.test(test_univ)
-#print("Trained Tagger for universal tags.")
+# Universal tags
+tagger_univ = Tagger()
+tagger_univ.train(train_univ)
+accur_univ = tagger_univ.test(test_univ)
+print("Trained Tagger for universal tags.")
 
 ## Custom tags
-#tagger_cust = Tagger()
-#tagger_cust.train(train_cust)
-#accur_cust = tagger_cust.test(test_cust)
-#print("Trained Tagger for custom tags.")
+tagger_cust = Tagger()
+tagger_cust.train(train_cust)
+accur_cust = tagger_cust.test(test_cust)
+print("Trained Tagger for custom tags.")
 
 
 #============================================================
 #                   INTRINSIC EVALUATION
 #============================================================
 
-#accur_rich, conf_rich = tagger_rich.test(test_rich)
-#accur_univ, conf_univ = tagger_univ.test(test_univ)
-#accur_cust, conf_cust = tagger_cust.test(test_cust)
+accur_rich, conf_rich = tagger_rich.test(test_rich)
+accur_univ, conf_univ = tagger_univ.test(test_univ)
+accur_cust, conf_cust = tagger_cust.test(test_cust)
 
-#str = """
-#Intrinsic evaluation:
-    #rich      :\t%0.2f %%
-    #universal :\t%0.2f %%
-    #custom    :\t%0.2f %%
-#""" % (accur_rich*100, accur_univ*100, accur_cust*100)
-#print(str)
+str = """
+Intrinsic evaluation:
+    rich      :\t%0.2f %%
+    universal :\t%0.2f %%
+    custom    :\t%0.2f %%
+""" % (accur_rich*100, accur_univ*100, accur_cust*100)
+print(str)
 
 
 #============================================================
 #                   EXTRINSIC EVALUATION
 #============================================================
 
-n_epoch = 1
+exit()
+
+n_epoch = 5
 
 accur_rich = 0
 accur_univ = 0
@@ -91,33 +93,34 @@ accur_pred = 0
 train, dev, test = [filter_non_projective(c) for c in get_tiger_corpus_data()]
 
 # Parser using rich tags
-#parser = ArcEagerParser(dp_features)
-#train_dependency_parser(parser, train, dev, n_epoch)
-#accur_rich = test_dependency_parser(parser, test)
-#print("Trained dependency parser with rich tags")
+print("\nTraining dependency parser with rich tags")
+parser = ArcEagerParser(dp_features)
+train_dependency_parser(parser, train, dev, n_epoch)
+accur_rich = test_dependency_parser(parser, test)
 
 
 # Parser using universal tags
-#train2, dev2, test2 = [filter_non_projective(c) for c in get_universal_treebank_data('de')]
-#parser = ArcEagerParser(dp_features)
-#train_dependency_parser(parser, train2, dev2, n_epoch)
-#accur_univ = test_dependency_parser(parser, test2)
-#print("Trained dependency parser with universal tags")
+print("\nTraining dependency parser with universal tags")
+train2, dev2, test2 = [filter_non_projective(c) for c in get_universal_treebank_data('de')]
+parser = ArcEagerParser(dp_features)
+train_dependency_parser(parser, train2, dev2, n_epoch)
+accur_univ = test_dependency_parser(parser, test2)
 
 
 # Parser using custom tags
+print("\nTraining dependency parser with custom tags")
 train3, dev3, test3 = [map_conll_corpus(c, cust_map) for c in [train, dev, test]]
 parser = ArcEagerParser(dp_features)
 train_dependency_parser(parser, train3, dev3, n_epoch)
 accur_cust = test_dependency_parser(parser, test3)
-print("Trained dependency parser with custom tags")
 
 
 # Parser using POS tagger with rich tags
-train4, dev4, test4 = [predict_conll_corpus(c, tagger) for c in [train, dev, test]]
+print("\nTraining dependency parser with predicted tags")
+train4, dev4, test4 = [predicted_conll_corpus(c, tagger_cust) for c in [train, dev, test]]
 parser = ArcEagerParser(dp_features)
-train_dependency_parser(parser, train3, dev3, n_epoch)
-accur_cust = test_dependency_parser(parser, test3)
+train_dependency_parser(parser, train4, dev4, n_epoch)
+accur_pred = test_dependency_parser(parser, test4)
 print("Trained dependency parser with custom tags")
 
 

@@ -72,6 +72,16 @@ def map_conll_corpus(corpus, map):
 def predicted_corpus(corpus, tagger):
     return [(s[0], tagger.predict(s[0])) for s in corpus]
 
+def predicted_conll_corpus(corpus, tagger):
+    new = []
+    for s in corpus:
+        tags = tagger.predict(s[0])
+        s1 = deepcopy(s[1])
+        s1['cpos'] = tags
+        s1['fpos'] = tags
+        new.append((s[0], s1, s[2], s[3]))
+    return new
+
 class Tagger():
     def __init__(self) :
         # log probabilités de transitions initiales P( . | début de phrase)

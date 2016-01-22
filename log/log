@@ -1,0 +1,51 @@
+Corpus: German Tiger
+    train :     39216 sentences
+    test  :     357 sentences
+
+Trained Tagger for rich tags.
+Trained Tagger for universal tags.
+Trained Tagger for custom tags.
+
+Intrinsic evaluation:
+    rich      : 95.96 %
+    universal : 96.14 %
+    custom    : 96.58 %
+
+Training dependency parser with rich tags
+Epoch 1 / 5 : UAS train = 74.057%, UAS dev = 80.288%
+Epoch 2 / 5 : UAS train = 79.516%, UAS dev = 81.221%
+Epoch 3 / 5 : UAS train = 81.789%, UAS dev = 81.916%
+Epoch 4 / 5 : UAS train = 83.600%, UAS dev = 82.367%
+Epoch 5 / 5 : UAS train = 85.032%, UAS dev = 82.718%
+Averaging weights
+
+Training dependency parser with universal tags
+Epoch 1 / 5 : UAS train = 72.665%, UAS dev = 78.430%
+Epoch 2 / 5 : UAS train = 78.140%, UAS dev = 79.136%
+Epoch 3 / 5 : UAS train = 80.982%, UAS dev = 79.538%
+Epoch 4 / 5 : UAS train = 83.357%, UAS dev = 79.559%
+Epoch 5 / 5 : UAS train = 84.937%, UAS dev = 79.700%
+Averaging weights
+
+Training dependency parser with custom tags
+Epoch 1 / 5 : UAS train = 72.339%, UAS dev = 78.166%
+Epoch 2 / 5 : UAS train = 77.573%, UAS dev = 79.610%
+Epoch 3 / 5 : UAS train = 80.128%, UAS dev = 80.260%
+Epoch 4 / 5 : UAS train = 82.138%, UAS dev = 80.712%
+Epoch 5 / 5 : UAS train = 83.674%, UAS dev = 80.998%
+Averaging weights
+
+Training dependency parser with predicted tags
+Epoch 1 / 5 : UAS train = 70.776%, UAS dev = 77.291%
+Epoch 2 / 5 : UAS train = 76.218%, UAS dev = 78.838%
+Epoch 3 / 5 : UAS train = 79.143%, UAS dev = 79.359%
+Epoch 4 / 5 : UAS train = 80.975%, UAS dev = 79.862%
+Epoch 5 / 5 : UAS train = 82.645%, UAS dev = 80.095%
+Averaging weights
+
+Extrinsic evaluation:
+    rich       :	81.58 %
+    universal  :	77.15 %
+    custom     :	80.04 %
+    prediction :        75.90 %
+
