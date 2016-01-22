@@ -1,28 +1,137 @@
 import sys
+import random
 from argparse import ArgumentParser, FileType
-from hmm import Tagger, de_universal_corpus, read_conll_tagging_data, read_map, map_corpus
-from dependency_parser import read_conll, ArcEagerParser, dp_features, train_dependency_parser, ArcHybridParser
-
-parser = ArgumentParser(description="POS Tagging using HMM")
-subparsers = parser.add_subparsers(help='subcommands', dest='cmd')
-
-parser_int = subparsers.add_parser('int')
-parser_int.add_argument('-t', '--train', nargs='?', type=FileType('r'), default='./data/de-universal-train.conll')
-parser_int.add_argument('-T', '--test', nargs='?', type=FileType('r'), default='./data/de-universal-test.conll')
-
-parser_tag = subparsers.add_parser('tagset')
-parser_tag.add_argument('-t', '--train', nargs='?', type=FileType('r'), default='./data/de-universal-train.conll')
-parser_tag.add_argument('-T', '--test', nargs='?', type=FileType('r'), default='./data/de-universal-test.conll')
-parser_tag.add_argument('-m', '--tag-map', nargs='?', type=FileType('r'), default='./data/de_tiger.map')
-
-parser_ext = subparsers.add_parser('ext')
-parser_ext.add_argument('-t', '--train', nargs='?', type=FileType('r', encoding='utf8'), default='./data/de-universal-train.conll')
-parser_ext.add_argument('-d', '--dev', nargs='?', type=FileType('r', encoding='utf8'), default='./data/de-universal-dev.conll')
-parser_ext.add_argument('-T', '--test', nargs='?', type=FileType('r', encoding='utf8'), default='./data/de-universal-test.conll')
+from hmm import *
+from quick_exp import get_tiger_corpus_data
+from dependency_parser import read_conll, ArcEagerParser, dp_features, train_dependency_parser, ArcHybridParser, check_projectivity, test_dependency_parser
 
 
-args = parser.parse_args()
+#============================================================
+#                    LOAD TIGER CORPUS
+#============================================================
 
+trainset = "./data/german_tiger_train.conll"
+testset  = "./data/german_tiger_test.conll"
+
+# Corpus for dependency parser
+train_full = read_conll(open(trainset, "r", encoding = "utf8"))
+test_full = read_conll(open(testset, "r", encoding = "utf8"))
+random.shuffle(train_full)
+split = len(train_full) // 20
+dev_full, train_full = train_full[:split], train_full[split:]
+
+# Corpus for POS tagger with rich tags
+train_rich = read_conll_tagging_data(open(trainset, "r", encoding = "utf8"))
+test_rich = read_conll_tagging_data(open(testset, "r", encoding = "utf8"))
+
+# Corpus for POS tagger with universal tags
+univ_map = read_map(open('./data/de_tiger.map', 'r', encoding = 'utf8'))
+train_univ = list(map_corpus(train_rich, univ_map))
+test_univ = list(map_corpus(test_rich, univ_map))
+
+# Corpus for POS tagger with custom tags
+cust_map = read_map(open('./data/custom.map', 'r', encoding = 'utf8'))
+train_cust = list(map_corpus(train_rich, cust_map))
+test_cust = list(map_corpus(test_rich, cust_map))
+
+str = """
+Corpus: German Tiger
+    train :\t%i sentences
+    test  :\t%i sentences
+""" % (len(train_rich), len(test_rich))
+print(str)
+
+
+#============================================================
+#                   POS TAGGERS TRAINING
+#============================================================
+
+# Rich tags
+tagger_rich = Tagger()
+tagger_rich.train(train_rich)
+accur_rich = tagger_rich.test(test_rich)
+print("Trained Tagger for rich tags.")
+
+# Universal tags
+tagger_univ = Tagger()
+tagger_univ.train(train_univ)
+accur_univ = tagger_univ.test(test_univ)
+print("Trained Tagger for universal tags.")
+
+# Custom tags
+tagger_cust = Tagger()
+tagger_cust.train(train_cust)
+accur_cust = tagger_cust.test(test_cust)
+print("Trained Tagger for custom tags.")
+
+#============================================================
+#                   INTRINSIC EVALUATION
+#============================================================
+
+accur_rich, conf_rich = tagger_rich.test(test_rich)
+accur_univ, conf_univ = tagger_univ.test(test_univ)
+accur_cust, conf_cust = tagger_cust.test(test_cust)
+
+str = """
+Intrinsic evaluation:
+    rich      :\t%0.2f %%
+    universal :\t%0.2f %%
+    custom    :\t%0.2f %%
+""" % (accur_rich*100, accur_univ*100, accur_cust*100)
+print(str)
+
+
+#============================================================
+#                   EXTRINSIC EVALUATION
+#============================================================
+
+# Filter Non Projective Dependency Trees
+train_dp = filter_non_projective(train_full)
+dev_dp = filter_non_projective(dev_full)
+test_dp = filter_non_projective(test_full)
+
+n_epoch = 1
+
+accur_dp = 0
+accur_rich = 0
+accur_univ = 0
+accur_cust = 0
+
+
+# Parser using annotated POS
+#parser_dp = ArcEagerParser(dp_features)
+#train_dependency_parser(parser_dp, train_dp, dev_dp, n_epoch)
+#accur_dp = test_dependency_parser(parser_dp, test_dp)
+
+
+# Parser using POS tagger with rich tags
+train_rich =
+dev_rich = filter_non_projective(dev_full)
+test_rich = filter_non_projective(test_full)
+
+parser_rich = ArcEagerParser(dp_features)
+train_dependency_parser(parser_rich, train_rich, dev_rich, n_epoch)
+print("Trained dependency parser with predicted corpus with rich tags")
+accur_rich = test_dependency_parser(parser_rich, test_rich)
+
+## Parser for universal tags
+#train_dp_univ = predicted_corpus(train, tagger)
+
+#dep_parser2 = ArcEagerParser(dp_features)
+#train_dependency_parser(dep_parser2, train2, dev2, n_epoch)
+#ext_accur = test_dependency_parser(dep_parser2, test2)
+
+str = """
+Extrinsic evaluation:
+    without tagger :\t%0.2f %%
+    rich           :\t%0.2f %%
+    universal      :\t%0.2f %%
+    custom         :\t%0.2f %%
+""" % (accur_dp*100, accur_rich*100, accur_univ*100, accur_cust*100)
+print(str)
+
+
+exit()
 
 def intrinsic_evaluation():
     train = read_conll_tagging_data(args.train)
@@ -94,16 +203,20 @@ def tagset_refinement():
 
 
 def extrinsic_evaluation():
-    train = read_conll(args.train)
-    dev = read_conll(args.dev)
-    test = read_conll(args.test)
+    train = filter_non_projective(read_conll(args.train))
+    dev = filter_non_projective(read_conll(args.dev))
+    test = filter_non_projective(read_conll(args.test))
 
-    n_epoch = 5
+    n_epoch = 1
     dep_parser = ArcEagerParser(dp_features)
     train_dependency_parser(dep_parser, train, dev, n_epoch)
+    raw_accur = test_dependency_parser(dep_parser, test)
 
-    raw_accur = 0.5
-    ext_accur = 0.5
+    train2 = predicted_corpus(train, tagger)
+
+    dep_parser2 = ArcEagerParser(dp_features)
+    train_dependency_parser(dep_parser2, train2, dev2, n_epoch)
+    ext_accur = test_dependency_parser(dep_parser2, test2)
 
     str = """
     ============================================================

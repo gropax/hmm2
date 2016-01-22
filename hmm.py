@@ -1,12 +1,17 @@
 import os
 from collections import defaultdict
 import numpy as np
+from dependency_parser import check_projectivity
 #from hmm.tagger import Tagger
 #from hmm.dependency_parser import ArcEagerParser, dp_features, train_dependency_parser, read_conll, ArcHybridParser
 
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 
+
+def tiger_corpus():
+    train_path = os.path.join(DATA_DIR, 'german_tiger_train.conll')
+    test_path = os.path.join(DATA_DIR, 'german_tiger_test.conll')
 
 def de_universal_corpus():
     train_path = os.path.join(DATA_DIR, 'de-universal-train.conll')
@@ -52,6 +57,8 @@ def read_conll_tagging_data(infile, max_sent=None):
         sentences.append((words,tags))
     return sentences
 
+def filter_non_projective(corpus):
+    return list(filter(lambda s: check_projectivity(s[2]), corpus))
 
 def read_map(file):
     map = {}
@@ -66,6 +73,8 @@ def map_corpus(corpus, map):
     for words, tags in corpus:
         yield (words, [map[t] for t in tags])
 
+def predicted_corpus(corpus, tagger):
+    return [(s[0], tagger.predict(s[0])) for s in corpus]
 
 class Tagger():
     def __init__(self) :
@@ -222,7 +231,6 @@ class Tagger():
         for i in reversed(range(n_words-1)) :
             sequence[i] = backtrack[sequence[i+1], i+1]
         return [self.tags[i] for i in sequence]
-
 
 
 #START = "<start>"
