@@ -1,4 +1,5 @@
 import os
+from copy import deepcopy
 from collections import defaultdict
 import numpy as np
 from dependency_parser import check_projectivity
@@ -8,21 +9,6 @@ from dependency_parser import check_projectivity
 
 DATA_DIR = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data')
 
-
-def tiger_corpus():
-    train_path = os.path.join(DATA_DIR, 'german_tiger_train.conll')
-    test_path = os.path.join(DATA_DIR, 'german_tiger_test.conll')
-
-def de_universal_corpus():
-    train_path = os.path.join(DATA_DIR, 'de-universal-train.conll')
-    dev_path = os.path.join(DATA_DIR, 'de-universal-dev.conll')
-    test_path = os.path.join(DATA_DIR, 'de-universal-test.conll')
-
-    train = read_conll(open(train_path, 'r', encoding='utf8'))
-    dev = read_conll(open(dev_path, 'r', encoding='utf8'))
-    test = read_conll(open(test_path, 'r', encoding='utf8'))
-
-    return train, dev, test
 
 def read_conll_tagging_data(infile, max_sent=None):
     """
@@ -72,6 +58,16 @@ def read_map(file):
 def map_corpus(corpus, map):
     for words, tags in corpus:
         yield (words, [map[t] for t in tags])
+
+def map_conll_corpus(corpus, map):
+    new = []
+    for s in corpus:
+        s1 = deepcopy(s[1])
+        s1['cpos'] = [map.get(c, c) for c in s[1]['cpos']]
+        s1['fpos'] = [map.get(c, c) for c in s[1]['fpos']]
+        s3 = [map.get(c, c) for c in s[3]]
+        new.append((s[0], s1, s[2], s3))
+    return new
 
 def predicted_corpus(corpus, tagger):
     return [(s[0], tagger.predict(s[0])) for s in corpus]
@@ -231,76 +227,3 @@ class Tagger():
         for i in reversed(range(n_words-1)) :
             sequence[i] = backtrack[sequence[i+1], i+1]
         return [self.tags[i] for i in sequence]
-
-
-#START = "<start>"
-#STOP = "ROOT"
-
-#class Tagger:
-    #def __init__(self):
-        #pass
-
-    #def train(self, corpus, smooth=1e-5):
-        #tag_count = defaultdict(float)
-        #prev_tag_count = defaultdict(float)
-        #emissions = defaultdict(float)
-        #transitions = defaultdict(float)
-
-#class Tagger:
-    #def __init__(self):
-        #pass
-
-    #def train(self, corpus, smooth=1e-5):
-        #tag_count = defaultdict(float)
-        #prev_tag_count = defaultdict(float)
-        #emissions = defaultdict(float)
-        #transitions = defaultdict(float)
-
-        #for sent in corpus:
-            #words = sent[0]
-            #cpos = sent[1]['cpos']
-
-            #for i, w in enumerate(words[1:]):
-                ##print("%i, %s" % (i, w))
-                #prev_tag = cpos[i]
-                #tag = cpos[i+1]
-                ##print("\tprev: %s" % prev_cat)
-                ##print("\tcat : %s" % cat)
-
-                ##print(w)
-
-                #tag_count[tag] += 1
-                #prev_tag_count[prev_tag] += 1
-                #emissions[(w, tag)] += 1
-                #transitions[(prev_tag, tag)] += 1
-
-
-            #print(tag_count)
-            #print(prev_tag_count)
-            #print(emissions)
-            #print(transitions)
-
-        #for sent in corpus:
-            #words = sent[0]
-            #cpos = sent[1]['cpos']
-
-            #for i, w in enumerate(words[1:]):
-                ##print("%i, %s" % (i, w))
-                #prev_tag = cpos[i]
-                #tag = cpos[i+1]
-                ##print("\tprev: %s" % prev_cat)
-                ##print("\tcat : %s" % cat)
-
-                ##print(w)
-
-                #tag_count[tag] += 1
-                #prev_tag_count[prev_tag] += 1
-                #emissions[(w, tag)] += 1
-                #transitions[(prev_tag, tag)] += 1
-
-
-            #print(tag_count)
-            #print(prev_tag_count)
-            #print(emissions)
-            #print(transitions)
-

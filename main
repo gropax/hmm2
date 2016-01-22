@@ -1,9 +1,11 @@
 import sys
 import random
+from copy import deepcopy
 from argparse import ArgumentParser, FileType
 from hmm import *
-from quick_exp import get_tiger_corpus_data
+from quick_exp import *
 from dependency_parser import read_conll, ArcEagerParser, dp_features, train_dependency_parser, ArcHybridParser, check_projectivity, test_dependency_parser
+
 
 
 #============================================================
@@ -12,13 +14,6 @@ from dependency_parser import read_conll, ArcEagerParser, dp_features, train_dep
 
 trainset = "./data/german_tiger_train.conll"
 testset  = "./data/german_tiger_test.conll"
-
-# Corpus for dependency parser
-train_full = read_conll(open(trainset, "r", encoding = "utf8"))
-test_full = read_conll(open(testset, "r", encoding = "utf8"))
-random.shuffle(train_full)
-split = len(train_full) // 20
-dev_full, train_full = train_full[:split], train_full[split:]
 
 # Corpus for POS tagger with rich tags
 train_rich = read_conll_tagging_data(open(trainset, "r", encoding = "utf8"))
@@ -47,203 +42,92 @@ print(str)
 #============================================================
 
 # Rich tags
-tagger_rich = Tagger()
-tagger_rich.train(train_rich)
-accur_rich = tagger_rich.test(test_rich)
-print("Trained Tagger for rich tags.")
+#tagger_rich = Tagger()
+#tagger_rich.train(train_rich)
+#accur_rich = tagger_rich.test(test_rich)
+#print("Trained Tagger for rich tags.")
 
-# Universal tags
-tagger_univ = Tagger()
-tagger_univ.train(train_univ)
-accur_univ = tagger_univ.test(test_univ)
-print("Trained Tagger for universal tags.")
+## Universal tags
+#tagger_univ = Tagger()
+#tagger_univ.train(train_univ)
+#accur_univ = tagger_univ.test(test_univ)
+#print("Trained Tagger for universal tags.")
 
-# Custom tags
-tagger_cust = Tagger()
-tagger_cust.train(train_cust)
-accur_cust = tagger_cust.test(test_cust)
-print("Trained Tagger for custom tags.")
+## Custom tags
+#tagger_cust = Tagger()
+#tagger_cust.train(train_cust)
+#accur_cust = tagger_cust.test(test_cust)
+#print("Trained Tagger for custom tags.")
+
 
 #============================================================
 #                   INTRINSIC EVALUATION
 #============================================================
 
-accur_rich, conf_rich = tagger_rich.test(test_rich)
-accur_univ, conf_univ = tagger_univ.test(test_univ)
-accur_cust, conf_cust = tagger_cust.test(test_cust)
+#accur_rich, conf_rich = tagger_rich.test(test_rich)
+#accur_univ, conf_univ = tagger_univ.test(test_univ)
+#accur_cust, conf_cust = tagger_cust.test(test_cust)
 
-str = """
-Intrinsic evaluation:
-    rich      :\t%0.2f %%
-    universal :\t%0.2f %%
-    custom    :\t%0.2f %%
-""" % (accur_rich*100, accur_univ*100, accur_cust*100)
-print(str)
+#str = """
+#Intrinsic evaluation:
+    #rich      :\t%0.2f %%
+    #universal :\t%0.2f %%
+    #custom    :\t%0.2f %%
+#""" % (accur_rich*100, accur_univ*100, accur_cust*100)
+#print(str)
 
 
 #============================================================
 #                   EXTRINSIC EVALUATION
 #============================================================
 
-# Filter Non Projective Dependency Trees
-train_dp = filter_non_projective(train_full)
-dev_dp = filter_non_projective(dev_full)
-test_dp = filter_non_projective(test_full)
-
 n_epoch = 1
 
-accur_dp = 0
 accur_rich = 0
 accur_univ = 0
 accur_cust = 0
+accur_pred = 0
+
+train, dev, test = [filter_non_projective(c) for c in get_tiger_corpus_data()]
+
+# Parser using rich tags
+#parser = ArcEagerParser(dp_features)
+#train_dependency_parser(parser, train, dev, n_epoch)
+#accur_rich = test_dependency_parser(parser, test)
+#print("Trained dependency parser with rich tags")
 
 
-# Parser using annotated POS
-#parser_dp = ArcEagerParser(dp_features)
-#train_dependency_parser(parser_dp, train_dp, dev_dp, n_epoch)
-#accur_dp = test_dependency_parser(parser_dp, test_dp)
+# Parser using universal tags
+#train2, dev2, test2 = [filter_non_projective(c) for c in get_universal_treebank_data('de')]
+#parser = ArcEagerParser(dp_features)
+#train_dependency_parser(parser, train2, dev2, n_epoch)
+#accur_univ = test_dependency_parser(parser, test2)
+#print("Trained dependency parser with universal tags")
+
+
+# Parser using custom tags
+train3, dev3, test3 = [map_conll_corpus(c, cust_map) for c in [train, dev, test]]
+parser = ArcEagerParser(dp_features)
+train_dependency_parser(parser, train3, dev3, n_epoch)
+accur_cust = test_dependency_parser(parser, test3)
+print("Trained dependency parser with custom tags")
 
 
 # Parser using POS tagger with rich tags
-train_rich =
-dev_rich = filter_non_projective(dev_full)
-test_rich = filter_non_projective(test_full)
+train4, dev4, test4 = [predict_conll_corpus(c, tagger) for c in [train, dev, test]]
+parser = ArcEagerParser(dp_features)
+train_dependency_parser(parser, train3, dev3, n_epoch)
+accur_cust = test_dependency_parser(parser, test3)
+print("Trained dependency parser with custom tags")
 
-parser_rich = ArcEagerParser(dp_features)
-train_dependency_parser(parser_rich, train_rich, dev_rich, n_epoch)
-print("Trained dependency parser with predicted corpus with rich tags")
-accur_rich = test_dependency_parser(parser_rich, test_rich)
-
-## Parser for universal tags
-#train_dp_univ = predicted_corpus(train, tagger)
-
-#dep_parser2 = ArcEagerParser(dp_features)
-#train_dependency_parser(dep_parser2, train2, dev2, n_epoch)
-#ext_accur = test_dependency_parser(dep_parser2, test2)
 
 str = """
 Extrinsic evaluation:
-    without tagger :\t%0.2f %%
-    rich           :\t%0.2f %%
-    universal      :\t%0.2f %%
-    custom         :\t%0.2f %%
-""" % (accur_dp*100, accur_rich*100, accur_univ*100, accur_cust*100)
+    rich       :\t%0.2f %%
+    universal  :\t%0.2f %%
+    custom     :\t%0.2f %%
+    prediction :\t%0.2f %%
+""" % (accur_rich*100, accur_univ*100, accur_cust*100, accur_pred*100)
 print(str)
-
-
-exit()
-
-def intrinsic_evaluation():
-    train = read_conll_tagging_data(args.train)
-    test = read_conll_tagging_data(args.test)
-
-    tagger = Tagger()
-    tagger.train(train)
-
-    int_accur, confusion = tagger.test(test)
-
-    str = """
-    ============================================================
-                    INTRINSIC EVALUATION
-    ============================================================
-
-    train corpus:\t%s\t(%i sentences)
-    test corpus :\t%s\t(%i sentences)
-
-    accuracy    :\t%0.2f %%
-
-    """ % (args.train.name, len(train),
-        args.test.name, len(test),
-        int_accur*100)
-    print(str)
-
-    for (tag, pred), prob in confusion.items():
-        if tag != pred and prob > 0.01:
-            print("    pred %s for %s :  %0.2f %%" % (pred, tag, prob))
-
-
-def tagset_refinement():
-    train = read_conll_tagging_data(args.train)
-    test = read_conll_tagging_data(args.test)
-
-    tagger = Tagger()
-    tagger.train(train)
-    original_accur,_ = tagger.test(test)
-
-    tag_map = read_map(args.tag_map)
-    train2 = list(map_corpus(train, tag_map))
-    test2 = list(map_corpus(test, tag_map))
-
-    tagger2 = Tagger()
-    tagger2.train(train2)
-    new_accur, confusion = tagger2.test(test2)
-
-    str = """
-    ============================================================
-                        TAGSET REFINEMENT
-    ============================================================
-
-    train corpus:\t%s\t(%i sentences)
-    test corpus :\t%s\t(%i sentences)
-    tag map     :\t%s
-
-    accuracy (original tags) :\t%0.2f %%
-    accuracy (mapped tags)   :\t%0.2f %%
-
-    """ % (args.train.name, len(train),
-        args.test.name, len(test),
-        args.tag_map.name,
-        original_accur*100,
-        new_accur*100)
-    print(str)
-
-    for (tag, pred), prob in confusion.items():
-        if tag != pred and prob > 0.01:
-            print("    pred %s for %s :  %0.2f %%" % (pred, tag, prob))
-
-
-def extrinsic_evaluation():
-    train = filter_non_projective(read_conll(args.train))
-    dev = filter_non_projective(read_conll(args.dev))
-    test = filter_non_projective(read_conll(args.test))
-
-    n_epoch = 1
-    dep_parser = ArcEagerParser(dp_features)
-    train_dependency_parser(dep_parser, train, dev, n_epoch)
-    raw_accur = test_dependency_parser(dep_parser, test)
-
-    train2 = predicted_corpus(train, tagger)
-
-    dep_parser2 = ArcEagerParser(dp_features)
-    train_dependency_parser(dep_parser2, train2, dev2, n_epoch)
-    ext_accur = test_dependency_parser(dep_parser2, test2)
-
-    str = """
-    ============================================================
-                    EXTRINSIC EVALUATION
-    ============================================================
-
-    train corpus:\t%s\t(%i sentences)
-    dev   corpus:\t%s\t(%i sentences)
-    test  corpus:\t%s\t(%i sentences)
-
-    accuracy without tagger :\t%0.2f %%
-    accuracy with tagger    :\t%0.2f %%
-
-    """ % (args.train.name, len(train),
-        args.dev.name, len(dev),
-        args.test.name, len(test),
-        raw_accur*100, ext_accur*100)
-
-    print(str)
-
-
-if args.cmd == 'int':
-    intrinsic_evaluation()
-elif args.cmd == 'tagset':
-    tagset_refinement()
-elif args.cmd == 'ext':
-    extrinsic_evaluation()
-
 
 # vim: set filetype=python:

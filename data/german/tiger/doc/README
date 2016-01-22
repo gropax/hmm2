@@ -1,0 +1,119 @@
+This is the readme file for the German part of the CONLL 2006 Shared Task.
+
+1. Preamble
+
+    1.1 Source
+
+        The TIGER Treebank is available from
+	http://www.ims.uni-stuttgart.de/projekte/TIGER/TIGERCorpus/
+
+    1.1 Copyright
+
+	The German data is dervied from the TIGER Treebank.  The text of the
+	treebank in turn comes from the Frankfurter Rundschau newspaper and
+	is Copyright is held by:
+
+	Druck- und Verlagshaus Frankfurt am Main GmbH
+	Verlag der Frankfurter Rundschau
+	Große Eschenheimer Straße 16-18
+	D-60313 Frankfurt am Main
+
+	The treebank itself was created by a colaboration between 
+	the universities of Potsdam, Stuttgart and Sarlaand.
+
+    1.2 License
+
+        The German data is derived from the TIGER Treebank, and is therefore
+	subject to the same licensing constraints as the TIGER Treebank.
+	It is available without cost for non-commercial use, contingent
+	on agreeing and signing the TIGER non-commercial license.  Please
+	see the license directory; you must agree to and submit an online
+	copy before using this data.
+
+2. Documentation
+
+    2.1 Data format
+
+    	Data adheres to the following rules:
+
+    	* Data files contain one or more sentences separated by a
+	  blank line.
+
+    	* A sentence consists of one or tokens, each one starting on a
+	  new line.
+
+    	* A token consists of ten fields described in the table
+	  below. Fields are separated by one or more blanks.
+
+	* All data files will contains these ten fields, although only
+          the ID, FORM, CPOSTAG, POSTAG, HEAD and DEPREL columns are
+          guaranteed to contain non-underscore values for all
+          languages.
+
+	* Data files are are UTF-8 encoded (unicode).
+
+	----------------------------------------------------------------------
+	Field number: 	Field name: 	Description:
+	----------------------------------------------------------------------
+	1 	ID 	Token counter, starting at 1 for each new sentence.
+	2 	FORM 	Word form or punctuation symbol
+	3 	LEMMA 	Stem of word form, or a concatenation if stems in case 
+			of a multi-word unit, or an underscore if not available
+	4 	CPOSTAG Coarse-grained part-of-speech tag; 
+			See stts-guide.ps.gz for a list of tags (Warning: the
+			documentation is in German)
+	5 	POSTAG 	Fine-grained part-of-speech tag, identical to the 
+	                coarse-grained part-of-speech.
+	6 	FEATS 	List of set-valued syntactic and/or morphological features.
+			This is unavailable for TIGER; this field only contains
+			underscores.
+	7 	HEAD 	Non-projective head of current token, 
+			which is either a value of ID or zero ('0')
+	8 	DEPREL 	Dependency relation to the non-projective-head, 
+			which is 'ROOT' when the value of HEAD is zero;
+			see kanten.html for the set dependency relations.
+	9 	PHEAD 	Projective head of current token;
+			which is either a vlue of ID of zero ('0').
+	10 	PDEPREL Dependency relation to projective head.
+	----------------------------------------------------------------------
+
+    2.2 Part-of-speech tags
+
+    	This treebank uses the Stuttart-Tuebingen tag set.  A full description
+	of the tag set is available in the stts-guide.ps.gz in the doc/
+	directory.
+
+    2.3 Projective Dependency Relations
+
+	As TIGER is a hybrid dependency/phase structure treebank, it has
+	aspects of both dependency grammars and phase structure grammars.
+	In particular, it is possible to get a phase structure tree with
+	non-projective "dependencies" annotated as traces with co-indexed
+	antecedents.  In such cases, there is both a non-projective and
+	a projective dependency.
+
+	For example, consider the following sentence with an extraposed
+	relative clause:
+
+	Der Mann gehe, der ich habe gesehen.
+	(The man goes, who I have seen)
+
+	There is a non-projective dependency between "habe" and "Mann",
+	and a projective one between "habe" and "gehe".  In most cases,
+	the projective dependency is lacking an annotated dependency
+	relation.  Therefore, we assign it the same relation as the
+	non-projective dependency, in this case relative clause (RC).
+
+	As phase structure treebanks allow unary rules and allow the
+	head of a recursive category to be another recursive
+	category, there may be ambiguity as to what the dependency
+	relation is.  For example, in the noun phrase:
+
+	dem Mann
+
+	"Mann" is annotated as having a function of NK (noun kernel),
+	but the NP (of which Mann is the head) may be annotated as
+	a dative object.  In such cases, we take the highest node's
+	function as the dependency relation.  When this process occurs
+	at a site of a non-projectivity, the projective and non-projective
+	relations may differ.

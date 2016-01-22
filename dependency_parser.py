@@ -749,7 +749,7 @@ def train_dependency_parser(parser, train_set, dev_set, n_epoch):
         
         print("Epoch {} / {} : UAS train = {:.3%}, UAS dev = {:.3%}".format(itn+1, n_epoch, corr / total, acc_test))
 
-    print('Averaging weights ...\n')
+    print('Averaging weights')
     parser.model.average_weights()
 
 
